@@ -2,6 +2,11 @@ require 'rest-client'
 require 'json'
 require 'pry'
 
+def jsonify(url)
+  hash = RestClient.get(url);
+  JSON.parse(hash)
+end
+
 def get_character_movies_from_api(character)
   #make the web request
   url = 'http://www.swapi.co/api/people/'
@@ -14,29 +19,22 @@ def get_character_movies_from_api(character)
     character_hash = jsonify(next_hash)
   end
 
-  if the_chosen_one == nil
-    []
-  else
+  if the_chosen_one
     the_chosen_one["films"]
+  else
+    []
   end
 end
 
-def jsonify(url)
-  hash = RestClient.get(url);
-  JSON.parse(hash)
-end
-
-
 def parse_character_movies(films_hash)
   # binding.pry
-  films_hash.collect do |film_url|
-    jsonify(film_url)["title"]
+  films_hash.collect.with_index(1) do |film_url, index|
+    "#{index} #{jsonify(film_url)["title"]}"
   end
 end
 
 def show_character_movies(character)
   films_hash = get_character_movies_from_api(character)
-  # binding.pry
   if parse_character_movies(films_hash).length > 0
     puts parse_character_movies(films_hash)
   else
